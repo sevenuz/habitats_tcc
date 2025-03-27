@@ -3,15 +3,10 @@ Deck = require("src/deck")
 Stack = require("src/util/stack")
 
 -- https://github.com/speakk/lighter
-Lighter = require("lib/lighter")
 credits_menu = require("src/menu/credits")
+main_menu = require("src/menu/mainmenu")
 
-local VERSION = '0.0.1'
-
-local windowWidth = love.graphics.getWidth()
-local windowHeight = love.graphics.getHeight()
-
-local lighter = Lighter()
+VERSION = '0.0.1'
 
 TITLE = 'Habitats TTC'
 MAIN_MENU = 0
@@ -19,25 +14,14 @@ GAME = 1
 SETTINGS = 2
 CREDITS = 3
 
+windowWidth = love.graphics.getWidth()
+windowHeight = love.graphics.getHeight()
+
 function love.load()
 	stack = Stack:new()
 	stack:push(MAIN_MENU)
 	credits_menu.load()
-
-	wall = {
-		100, 100,
-		300, 100,
-		300, 300,
-		100, 300
-	}
-
-	lighter:addPolygon(wall)
-
-	local lightX, lightY = 500, 500
-
-	-- addLight signature: (x,y,radius,r,g,b,a)
-	light = lighter:addLight(lightX, lightY, 500, 1, 0.5, 0.5)
-
+	main_menu.load()
 
 	winned = false
 
@@ -73,17 +57,6 @@ function love.load()
 	backgroundImage = love.graphics.newImage('sprites/back.png')
 	backgroundImage:setWrap('repeat', 'repeat')
 
-	-- load sphere
-	sphereImage = love.graphics.newImage('sprites/sphere.png')
-	sphere2Image = love.graphics.newImage('sprites/sphere2.png')
-	-- particle system
-	pSystem = love.graphics.newParticleSystem(sphere2Image, 32)
-	pSystem:setParticleLifetime(1, 5)
-	pSystem:setLinearAcceleration(-20, -20, 20, 20)
-	pSystem:setSpeed(20)
-	pSystem:setRotation(10, 20)
-	pSystem:setSpin(20, 50)
-
 	-- Load cards sprites
 	cardBackImage = love.graphics.newImage('sprites/cardback.png')
 	cardBackQuad = love.graphics.newQuad(0, 0, adjustedCardWidth,
@@ -100,7 +73,7 @@ function love.draw()
 	love.graphics.draw(backgroundImage, backgroundQuad, 0, 0)
 
 	if stack:peek() == MAIN_MENU then
-		show_mainmenu()
+		main_menu.draw()
 		return
 	end
 
@@ -155,13 +128,11 @@ function love.draw()
 end
 
 function love.update(dt)
-	lightX, lightY = love.mouse.getPosition()
-	lighter:updateLight(light, lightX, lightY)
-
-	pSystem:update(dt)
-
 	if stack:peek() == CREDITS then
 		credits_menu.update(dt)
+	end
+	if stack:peek() == MAIN_MENU then
+		main_menu.update(dt)
 	end
 
 	-- Check count of openned cards
@@ -213,11 +184,9 @@ function love.mousepressed(x, y, button, istouch, presses)
 		credits_menu.mousepressed(x, y, button, istouch, presses)
 	end
 	if stack:peek() == MAIN_MENU then
-		if love.mouse.isDown(1) then
-			pSystem:emit(32)
-		end
-		return
+		main_menu.mousepressed(x, y, button, istouch, presses)
 	end
+
 	if stack:peek() == GAME then
 		-- Left button pressed
 		if button == 1 then
@@ -244,21 +213,16 @@ function love.mousepressed(x, y, button, istouch, presses)
 	end
 end
 
-function love.mousereleased(x, y, button, istouch, presses)
-	if stack:peek() == CREDITS then
-		credits_menu.mousereleased(x, y, button, istouch, presses)
-	end
-end
-
-function love.mousemoved(x, y, dx, dy, istouch)
-	if stack:peek() == CREDITS then
-		credits_menu.mousemoved(x, y, dx, dy, istouch)
-	end
-end
+function love.mousereleased(x, y, button, istouch, presses) end
+function love.keyreleased(key, scancode) end
+function love.mousemoved(x, y, dx, dy, istouch) end
 
 function love.textinput(text)
 	if stack:peek() == CREDITS then
 		credits_menu.textinput(text)
+	end
+	if stack:peek() == MAIN_MENU then
+		main_menu.textinput(text)
 	end
 end
 
@@ -266,36 +230,25 @@ function love.wheelmoved(x, y)
 	if stack:peek() == CREDITS then
 		credits_menu.wheelmoved(x, y)
 	end
+	if stack:peek() == MAIN_MENU then
+		main_menu.wheelmoved(x, y)
+	end
 end
 
 function love.keypressed(key, scancode, isrepeat)
 	-- print(key)
 	if key == "escape" then
-		if stack:peek() == GAME then
-			-- Restart
-			love.load()
-		end
 		if stack:size() > 1 then
 			stack:pop()
+			print("main", stack:size())
 		end
-	end
-	if key == "return" then
-		if stack:peek() == MAIN_MENU then
-			stack:push(GAME)
-		end
-	end
-	if key == "c" then
-		stack:push(CREDITS)
 	end
 
 	if stack:peek() == CREDITS then
 		credits_menu.keypressed(key, scancode)
 	end
-end
-
-function love.keyreleased(key, scancode)
-	if stack:peek() == CREDITS then
-		credits_menu.keyreleased(key, scancode)
+	if stack:peek() == MAIN_MENU then
+		main_menu.keypressed(key, scancode)
 	end
 end
 
@@ -310,23 +263,7 @@ end
 function love.quit()
 	print("Thanks for playing! Come back soon!")
 	-- Clean up
-	lighter:removeLight(light)
-	lighter:removePolygon(wall)
-end
-
--- Show winned screen
-function show_mainmenu()
-	love.graphics.draw(sphereImage)
-
-	love.graphics.draw(pSystem, love.mouse.getX(), love.mouse.getY())
-
-	love.graphics.polygon('fill', wall)
-	lighter:drawLights()
-
-	love.graphics.setFont(love.graphics.newFont(60))
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.printf(string.format('Welcome to \n%q', TITLE),
-		windowWidth / 5.5, windowHeight / 3.5, 500, 'center')
+	main_menu.quit()
 end
 
 -- Show winned screen

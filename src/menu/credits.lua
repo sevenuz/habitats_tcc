@@ -59,18 +59,6 @@ return {
 		suit.keypressed(key)
 	end,
 
-	keyreleased = function(key, scancode)
-	end,
-
-	mousepressed = function(x, y, button, istouch, presses)
-	end,
-
-	mousereleased = function(x, y, button, istouch, presses)
-	end,
-
-	mousemoved = function(x, y, dx, dy, istouch)
-	end,
-
 	textinput = function(text)
 		suit.textinput(text)
 	end,
