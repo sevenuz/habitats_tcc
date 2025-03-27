@@ -128,9 +128,9 @@ function theme.Input(input, opt, x,y,w,h)
 	local ctw = opt.font:getWidth(input.candidate_text.text)
 	love.graphics.setColor((opt.color and opt.color.normal and opt.color.normal.fg) or theme.color.normal.fg)
 	love.graphics.print(input.candidate_text.text, x + tw, y+(h-th)/2)
-	
+
 	-- candidate text rectangle box
-	love.graphics.rectangle("line", x + tw, y+(h-th)/2, ctw, th)
+	-- love.graphics.rectangle("line", x + tw, y+(h-th)/2, ctw, th)
 
 	-- cursor
 	if opt.hasKeyboardFocus and (love.timer.getTime() % 1) > .5 then
