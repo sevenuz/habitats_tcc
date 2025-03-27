@@ -148,7 +148,6 @@ end
 function suit:wheelmoved(x, y)
 	self.wheel_x = x
 	self.wheel_y = y
-	print(y)
 end
 
 function suit:consume_wheel_y()

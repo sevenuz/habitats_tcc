@@ -11,6 +11,7 @@ return function(core, normal, ...)
 	opt.normal = normal or opt.normal or opt[1]
 	opt.hovered = opt.hovered or opt[2] or opt.normal
 	opt.active = opt.active or opt[3] or opt.hovered
+	opt.mask = opt.mask or opt[4]
 	opt.id = opt.id or opt.normal
 
 	local image = assert(opt.normal, "No image for state `normal'")
@@ -25,8 +26,8 @@ return function(core, normal, ...)
 		if opt.mask then
 			-- alpha test
 			assert(isType(opt.mask, "ImageData"), "Option `mask` is not a love.image.ImageData")
-			assert(u < mask:getWidth() and v < mask:getHeight(), "Mask may not be smaller than image.")
-			local _,_,_,a = mask:getPixel(u,v)
+			assert(u < opt.mask:getWidth() and v < opt.mask:getHeight(), "Mask may not be smaller than image.")
+			local _,_,_,a = opt.mask:getPixel(u,v)
 			return a > 0
 		end
 
