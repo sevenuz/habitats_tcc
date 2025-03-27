@@ -2,7 +2,7 @@
 
 local NONE = {}
 local BASE = (...):match('(.-)[^%.]+$')
-local default_theme = require(BASE..'theme')
+local default_theme = require(BASE .. 'theme')
 
 local suit = {}
 suit.__index = suit
@@ -11,20 +11,23 @@ function suit.new(theme)
 	return setmetatable({
 		-- TODO: deep copy/copy on write? better to let user handle => documentation?
 		theme = theme or default_theme,
-		mouse_x = 0, mouse_y = 0,
+		mouse_x = 0,
+		mouse_y = 0,
+		wheel_x = 0,
+		wheel_y = 0,
 		mouse_button_down = false,
-		candidate_text = {text="", start=0, length=0},
+		candidate_text = { text = "", start = 0, length = 0 },
 
-		draw_queue = {n = 0},
+		draw_queue = { n = 0 },
 
-		Button = require(BASE.."button"),
-		ImageButton = require(BASE.."imagebutton"),
-		Label = require(BASE.."label"),
-		Checkbox = require(BASE.."checkbox"),
-		Input = require(BASE.."input"),
-		Slider = require(BASE.."slider"),
+		Button = require(BASE .. "button"),
+		ImageButton = require(BASE .. "imagebutton"),
+		Label = require(BASE .. "label"),
+		Checkbox = require(BASE .. "checkbox"),
+		Input = require(BASE .. "input"),
+		Slider = require(BASE .. "slider"),
 
-		layout = require(BASE.."layout").new(),
+		layout = require(BASE .. "layout").new(),
 	}, suit)
 end
 
@@ -65,7 +68,6 @@ function suit:isActive(id)
 	return id == self.active
 end
 
-
 function suit:setHit(id)
 	self.hit = id
 	-- simulate mouse release on button -- see suit:mouseReleasedOn()
@@ -94,9 +96,9 @@ function suit:getStateName(id)
 end
 
 -- mouse handling
-function suit:mouseInRect(x,y,w,h)
+function suit:mouseInRect(x, y, w, h)
 	return self.mouse_x >= x and self.mouse_y >= y and
-	       self.mouse_x <= x+w and self.mouse_y <= y+h
+			self.mouse_x <= x + w and self.mouse_y <= y + h
 end
 
 function suit:registerMouseHit(id, ul_x, ul_y, hit)
@@ -109,8 +111,8 @@ function suit:registerMouseHit(id, ul_x, ul_y, hit)
 	return self:getStateName(id)
 end
 
-function suit:registerHitbox(id, x,y,w,h)
-	return self:registerMouseHit(id, x,y, function(x,y)
+function suit:registerHitbox(id, x, y, w, h)
+	return self:registerMouseHit(id, x, y, function(x, y)
 		return x >= 0 and x <= w and y >= 0 and y <= h
 	end)
 end
@@ -124,7 +126,7 @@ function suit:mouseReleasedOn(id)
 end
 
 function suit:updateMouse(x, y, button_down)
-	self.mouse_x, self.mouse_y = x,y
+	self.mouse_x, self.mouse_y = x, y
 	if button_down ~= nil then
 		self.mouse_button_down = button_down
 	end
@@ -143,6 +145,18 @@ function suit:keypressed(key)
 	self.key_down = key
 end
 
+function suit:wheelmoved(x, y)
+	self.wheel_x = x
+	self.wheel_y = y
+	print(y)
+end
+
+function suit:consume_wheel_y()
+	local dy = self.wheel_y
+	self.wheel_y = 0
+	return dy
+end
+
 function suit:textinput(char)
 	self.textchar = char
 end
@@ -157,9 +171,9 @@ function suit:grabKeyboardFocus(id)
 	if self:isActive(id) then
 		if love.system.getOS() == "Android" or love.system.getOS() == "iOS" then
 			if id == NONE then
-				love.keyboard.setTextInput( false )
+				love.keyboard.setTextInput(false)
 			else
-				love.keyboard.setTextInput( true )
+				love.keyboard.setTextInput(true)
 			end
 		end
 		self.keyboardFocus = id
@@ -195,7 +209,7 @@ end
 
 -- draw
 function suit:registerDraw(f, ...)
-	local args = {...}
+	local args = { ... }
 	local nargs = select('#', ...)
 	self.draw_queue.n = self.draw_queue.n + 1
 	self.draw_queue[self.draw_queue.n] = function()
@@ -206,7 +220,7 @@ end
 function suit:draw()
 	self:exitFrame()
 	love.graphics.push('all')
-	for i = self.draw_queue.n,1,-1 do
+	for i = self.draw_queue.n, 1, -1 do
 		self.draw_queue[i]()
 	end
 	love.graphics.pop()

@@ -8,12 +8,12 @@ return {
 	load = function() end,
 
 	update = function(dt)
-		suit.layout:reset(100,100)
+		suit.layout:reset(100, 100)
 
-    -- put 10 extra pixels between cells in each direction
-    suit.layout:padding(10,10)
+		-- put 10 extra pixels between cells in each direction
+		suit.layout:padding(10, 10)
 		love.graphics.setFont(love.graphics.newFont(14))
-		if suit.Button("Hello, World!", suit.layout:row(300,30)).hit then
+		if suit.Button("Hello, World!", suit.layout:row(300, 30)).hit then
 			show_message = true
 		end
 
@@ -52,5 +52,6 @@ return {
 	end,
 
 	wheelmoved = function(x, y)
+		suit.wheelmoved(x, y)
 	end
 }

@@ -3,7 +3,7 @@
 local BASE = (...):match('(.-)[^%.]+$')
 
 return function(core, info, ...)
-	local opt, x,y,w,h = core.getOptionsAndSize(...)
+	local opt, x, y, w, h = core.getOptionsAndSize(...)
 
 	opt.id = opt.id or info
 
@@ -13,13 +13,13 @@ return function(core, info, ...)
 	local fraction = (info.value - info.min) / (info.max - info.min)
 	local value_changed = false
 
-	opt.state = core:registerHitbox(opt.id, x,y,w,h)
+	opt.state = core:registerHitbox(opt.id, x, y, w, h)
 
 	if core:isActive(opt.id) then
 		-- mouse update
-		local mx,my = core:getMousePosition()
+		local mx, my = core:getMousePosition()
 		if opt.vertical then
-			fraction = math.min(1, math.max(0, (y+h - my) / h))
+			fraction = math.min(1, math.max(0, (y + h - my) / h))
 		else
 			fraction = math.min(1, math.max(0, (mx - x) / w))
 		end
@@ -28,7 +28,9 @@ return function(core, info, ...)
 			info.value = v
 			value_changed = true
 		end
+	end
 
+	if core:isHovered(opt.id) then
 		-- keyboard update
 		local key_up = opt.vertical and 'up' or 'right'
 		local key_down = opt.vertical and 'down' or 'left'
@@ -39,9 +41,18 @@ return function(core, info, ...)
 			info.value = math.max(info.min, info.value - info.step)
 			value_changed = true
 		end
+		-- mouse wheel
+		local dy = core:consume_wheel_y()
+		if dy > 0 then
+			info.value = math.min(info.max, info.value + (dy * info.step))
+			value_changed = true
+		elseif dy < 0 then
+			info.value = math.max(info.min, info.value + (dy * info.step))
+			value_changed = true
+		end
 	end
 
-	core:registerDraw(opt.draw or core.theme.Slider, fraction, opt, x,y,w,h)
+	core:registerDraw(opt.draw or core.theme.Slider, fraction, opt, x, y, w, h)
 
 	return {
 		id = opt.id,
