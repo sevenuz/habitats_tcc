@@ -4,6 +4,7 @@ Stack = require("src/util/stack")
 
 -- https://github.com/speakk/lighter
 Lighter = require("lib/lighter")
+credits_menu = require("src/menu/credits")
 
 local VERSION = '0.0.1'
 
@@ -16,10 +17,12 @@ TITLE = 'Habitats TTC'
 MAIN_MENU = 0
 GAME = 1
 SETTINGS = 2
+CREDITS = 3
 
 function love.load()
 	stack = Stack:new()
 	stack:push(MAIN_MENU)
+	credits_menu.load()
 
 	wall = {
 		100, 100,
@@ -101,6 +104,11 @@ function love.draw()
 		return
 	end
 
+	if stack:peek() == CREDITS then
+		credits_menu.draw()
+		return
+	end
+
 	-- Check winned
 	if winned then
 		show_winned()
@@ -152,6 +160,10 @@ function love.update(dt)
 
 	pSystem:update(dt)
 
+	if stack:peek() == CREDITS then
+		credits_menu.update(dt)
+	end
+
 	-- Check count of openned cards
 	if deck:solvedCount() == deck:count() then
 		winned = true
@@ -197,29 +209,34 @@ function love.update(dt)
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
+	if stack:peek() == CREDITS then
+		credits_menu.mousepressed(x, y, button, istouch, presses)
+	end
 	if stack:peek() == MAIN_MENU then
 		if love.mouse.isDown(1) then
 			pSystem:emit(32)
 		end
 		return
 	end
-	-- Left button pressed
-	if button == 1 then
-		if deck:openedCount() >= 2 then
-			deck:closeAll()
-		else
-			-- Iterate over cards
-			for i = 1, deck:count() do
-				local c = deck:get(i)
+	if stack:peek() == GAME then
+		-- Left button pressed
+		if button == 1 then
+			if deck:openedCount() >= 2 then
+				deck:closeAll()
+			else
+				-- Iterate over cards
+				for i = 1, deck:count() do
+					local c = deck:get(i)
 
-				-- Search card by coords
-				if not c.isSolved and c:inside(x, y) then
-					c.isOpened = true
-					c.openedTime = love.timer.getTime()
+					-- Search card by coords
+					if not c.isSolved and c:inside(x, y) then
+						c.isOpened = true
+						c.openedTime = love.timer.getTime()
 
-					-- First set game timer
-					if startTime == 0 then
-						startTime = love.timer.getTime()
+						-- First set game timer
+						if startTime == 0 then
+							startTime = love.timer.getTime()
+						end
 					end
 				end
 			end
@@ -227,23 +244,60 @@ function love.mousepressed(x, y, button, istouch, presses)
 	end
 end
 
-function love.mousereleased(x, y, button, istouch) end
+function love.mousereleased(x, y, button, istouch, presses)
+	if stack:peek() == CREDITS then
+		credits_menu.mousereleased(x, y, button, istouch, presses)
+	end
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+	if stack:peek() == CREDITS then
+		credits_menu.mousemoved(x, y, dx, dy, istouch)
+	end
+end
+
+function love.textinput(text)
+	if stack:peek() == CREDITS then
+		credits_menu.textinput(text)
+	end
+end
+
+function love.wheelmoved(x, y)
+	if stack:peek() == CREDITS then
+		credits_menu.wheelmoved(x, y)
+	end
+end
 
 function love.keypressed(key, scancode, isrepeat)
-	print(key)
-	-- Restart
-	if key == "r" then love.load() end
+	-- print(key)
 	if key == "escape" then
+		if stack:peek() == GAME then
+			-- Restart
+			love.load()
+		end
 		if stack:size() > 1 then
 			stack:pop()
 		end
 	end
 	if key == "return" then
-		stack:push(GAME)
+		if stack:peek() == MAIN_MENU then
+			stack:push(GAME)
+		end
+	end
+	if key == "c" then
+		stack:push(CREDITS)
+	end
+
+	if stack:peek() == CREDITS then
+		credits_menu.keypressed(key, scancode)
 	end
 end
 
-function love.keyreleased(key) end
+function love.keyreleased(key, scancode)
+	if stack:peek() == CREDITS then
+		credits_menu.keyreleased(key, scancode)
+	end
+end
 
 function love.focus(f)
 	if not f then
