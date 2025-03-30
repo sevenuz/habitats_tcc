@@ -20,7 +20,7 @@ return {
 		light = lighter:addLight(lightX, lightY, 500, 1, 0.5, 0.5)
 
 		-- load sphere
-		sphereImage = love.graphics.newImage('sprites/sphere.png')
+		worldImage = love.graphics.newImage('sprites/world.png')
 		sphere2Image = love.graphics.newImage('sprites/sphere2.png')
 		-- particle system
 		pSystem = love.graphics.newParticleSystem(sphere2Image, 32)
@@ -39,7 +39,7 @@ return {
 	end,
 
 	draw = function()
-		love.graphics.draw(sphereImage)
+		love.graphics.draw(worldImage)
 
 		love.graphics.draw(pSystem, love.mouse.getX(), love.mouse.getY())
 

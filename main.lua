@@ -3,7 +3,7 @@ Stack = require("src/util/stack")
 credits_menu = require("src/menu/credits")
 main_menu = require("src/menu/mainmenu")
 
-game = require("src/game")
+map = require("src/game/view/map")
 
 VERSION = '0.0.1'
 
@@ -13,26 +13,24 @@ GAME = 1
 SETTINGS = 2
 CREDITS = 3
 
-windowWidth = love.graphics.getWidth()
-windowHeight = love.graphics.getHeight()
+windowWidth = 1920
+windowHeight = 1080
 
 function love.load()
+	love.window.setMode(0, 0, { fullscreen = true })
+
 	stack = Stack:new()
 	stack:push(MAIN_MENU)
 	credits_menu.load()
 	main_menu.load()
 
-	game.load()
+	map.load()
 
 	-- Set title
 	love.window.setTitle(TITLE)
 end
 
 function love.draw()
-	-- Draw background
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.draw(backgroundImage, backgroundQuad, 0, 0)
-
 	if stack:peek() == MAIN_MENU then
 		main_menu.draw()
 		return
@@ -44,7 +42,7 @@ function love.draw()
 	end
 
 	if stack:peek() == GAME then
-		game.draw()
+		map.draw()
 		return
 	end
 end
@@ -57,25 +55,20 @@ function love.update(dt)
 		main_menu.update(dt)
 	end
 	if stack:peek() == GAME then
-		game.update(dt)
+		map.update(dt)
 	end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-	if stack:peek() == CREDITS then
-		credits_menu.mousepressed(x, y, button, istouch, presses)
-	end
 	if stack:peek() == MAIN_MENU then
 		main_menu.mousepressed(x, y, button, istouch, presses)
-	end
-
-	if stack:peek() == GAME then
-		game.mousepressed(x, y, button, istouch, presses)
 	end
 end
 
 function love.mousereleased(x, y, button, istouch, presses) end
+
 function love.keyreleased(key, scancode) end
+
 function love.mousemoved(x, y, dx, dy, istouch) end
 
 function love.textinput(text)
@@ -85,6 +78,9 @@ function love.textinput(text)
 	if stack:peek() == MAIN_MENU then
 		main_menu.textinput(text)
 	end
+	if stack:peek() == GAME then
+		map.textinput(text)
+	end
 end
 
 function love.wheelmoved(x, y)
@@ -93,6 +89,9 @@ function love.wheelmoved(x, y)
 	end
 	if stack:peek() == MAIN_MENU then
 		main_menu.wheelmoved(x, y)
+	end
+	if stack:peek() == GAME then
+		map.wheelmoved(x, y)
 	end
 end
 
@@ -110,6 +109,9 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 	if stack:peek() == MAIN_MENU then
 		main_menu.keypressed(key, scancode)
+	end
+	if stack:peek() == GAME then
+		map.keypressed(key, scancode)
 	end
 end
 
