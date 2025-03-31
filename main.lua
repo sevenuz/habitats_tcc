@@ -2,6 +2,7 @@ Stack = require("src/util/stack")
 
 credits_menu = require("src/menu/credits")
 main_menu = require("src/menu/mainmenu")
+debug = require("src/menu/debug")
 
 map = require("src/game/view/map")
 
@@ -16,6 +17,8 @@ CREDITS = 3
 windowWidth = 1920
 windowHeight = 1080
 
+show_debug = false
+
 function love.load()
 	love.window.setMode(0, 0, { fullscreen = true })
 
@@ -23,6 +26,7 @@ function love.load()
 	stack:push(MAIN_MENU)
 	credits_menu.load()
 	main_menu.load()
+	debug.load()
 
 	map.load()
 
@@ -31,6 +35,8 @@ function love.load()
 end
 
 function love.draw()
+	-- reset color for new frame
+	love.graphics.setColor(255, 255, 255)
 	if stack:peek() == MAIN_MENU then
 		main_menu.draw()
 		return
@@ -45,6 +51,10 @@ function love.draw()
 		map.draw()
 		return
 	end
+
+	if show_debug then
+		debug.draw()
+	end
 end
 
 function love.update(dt)
@@ -56,6 +66,10 @@ function love.update(dt)
 	end
 	if stack:peek() == GAME then
 		map.update(dt)
+	end
+
+	if show_debug then
+		debug.update(dt)
 	end
 end
 
@@ -81,6 +95,10 @@ function love.textinput(text)
 	if stack:peek() == GAME then
 		map.textinput(text)
 	end
+
+	if show_debug then
+		debug.textinput(text)
+	end
 end
 
 function love.wheelmoved(x, y)
@@ -93,6 +111,10 @@ function love.wheelmoved(x, y)
 	if stack:peek() == GAME then
 		map.wheelmoved(x, y)
 	end
+
+	if show_debug then
+		debug.wheelmoved(x, y)
+	end
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -103,6 +125,9 @@ function love.keypressed(key, scancode, isrepeat)
 			print("main", stack:size())
 		end
 	end
+	if key == "f3" then
+		show_debug = not show_debug
+	end
 
 	if stack:peek() == CREDITS then
 		credits_menu.keypressed(key, scancode)
@@ -112,6 +137,10 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 	if stack:peek() == GAME then
 		map.keypressed(key, scancode)
+	end
+
+	if show_debug then
+		debug.keypressed(key, scancode)
 	end
 end
 
