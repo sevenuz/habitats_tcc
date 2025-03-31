@@ -48,19 +48,19 @@ end
 
 return {
 	load = function()
-		img_bg = love.graphics.newImage('sprites/bg.png')
+		img_bg = love.graphics.newImage('sprites/tile_frame.png')
 		img_card_back = love.graphics.newImage('sprites/card_back.png')
 		img_card_front = love.graphics.newImage('sprites/card_front.png')
-		img_tile_green = love.graphics.newImage('sprites/tile_green.png')
-		img_tile_water = love.graphics.newImage('sprites/tile_water.png')
-		img_tile_sand = love.graphics.newImage('sprites/tile_sand.png')
+		img_tile_green = love.graphics.newImage('sprites/tile_base_green.png')
+		img_tile_water = love.graphics.newImage('sprites/tile_base_water.png')
+		img_tile_sand = love.graphics.newImage('sprites/tile_base_sand.png')
 
-		img_blub_water1 = love.graphics.newImage('sprites/water_blub1.png')
-		img_blub_water2 = love.graphics.newImage('sprites/water_blub2.png')
-		img_blub_green1 = love.graphics.newImage('sprites/green_blub1.png')
-		img_blub_green2 = love.graphics.newImage('sprites/green_blub2.png')
-		img_blub_sand1 = love.graphics.newImage('sprites/sand_blub1.png')
-		img_blub_sand2 = love.graphics.newImage('sprites/sand_blub2.png')
+		img_blub_water1 = love.graphics.newImage('sprites/tile_blub_water1.png')
+		img_blub_water2 = love.graphics.newImage('sprites/tile_blub_water2.png')
+		img_blub_green1 = love.graphics.newImage('sprites/tile_blub_green1.png')
+		img_blub_green2 = love.graphics.newImage('sprites/tile_blub_green2.png')
+		img_blub_sand1 = love.graphics.newImage('sprites/tile_blub_sand1.png')
+		img_blub_sand2 = love.graphics.newImage('sprites/tile_blub_sand2.png')
 	end,
 
 	update = function(dt)
@@ -69,7 +69,7 @@ return {
 		-- put 10 extra pixels between cells in each direction
 		suit.layout:padding(10, 10)
 		love.graphics.setFont(love.graphics.newFont(14))
-		suit.Label("Water: " .. tostring(slider_water.value), suit.layout:row(100,30))
+		suit.Label("Water: " .. tostring(slider_water.value), suit.layout:row(100, 30))
 		suit.Slider(slider_water, suit.layout:row())
 
 		suit.Label("Nutrians: " .. tostring(slider_nutrians.value), suit.layout:row())
@@ -80,7 +80,6 @@ return {
 	end,
 
 	draw = function()
-		love.graphics.draw(img_bg, 0, 0)
 		local tile = choose_tile(slider_water.value, slider_nutrians.value, slider_sun.value)
 		local bw1, bw2, bg1, bg2, bs1, bs2 = blub(slider_water.value, slider_nutrians.value, slider_sun.value)
 		if tile == TILE_SAND then
@@ -109,8 +108,7 @@ return {
 		if bs2 then
 			love.graphics.draw(img_blub_sand2, windowWidth / 4, 10)
 		end
-
-		suit.draw()
+		love.graphics.draw(img_bg, windowWidth / 4, 10)
 	end,
 
 	keypressed = function(key, scancode, isrepeat)

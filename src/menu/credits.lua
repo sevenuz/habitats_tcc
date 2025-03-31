@@ -13,7 +13,7 @@ end
 
 return {
 	load = function()
-		imageData = love.image.newImageData('sprites/sphere2.png')
+		imageData = love.image.newImageData('sprites/sphere.png')
 		btnImg = love.graphics.newImage(imageData)
 		btnMask = imageData
 		imageData:mapPixel(brighten)
@@ -51,9 +51,7 @@ return {
 		end
 	end,
 
-	draw = function()
-		suit.draw()
-	end,
+	draw = function() end,
 
 	keypressed = function(key, scancode, isrepeat)
 		suit.keypressed(key)

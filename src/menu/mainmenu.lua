@@ -20,8 +20,8 @@ return {
 		light = lighter:addLight(lightX, lightY, 500, 1, 0.5, 0.5)
 
 		-- load sphere
-		worldImage = love.graphics.newImage('sprites/world.png')
-		sphere2Image = love.graphics.newImage('sprites/sphere2.png')
+		worldImage = love.graphics.newImage('sprites/frame.png')
+		sphere2Image = love.graphics.newImage('sprites/sphere.png')
 		-- particle system
 		pSystem = love.graphics.newParticleSystem(sphere2Image, 32)
 		pSystem:setParticleLifetime(1, 5)
@@ -48,9 +48,8 @@ return {
 
 		love.graphics.setFont(love.graphics.newFont(60))
 		love.graphics.setColor(255, 255, 255)
-		love.graphics.printf(string.format('Welcome to \n%q', TITLE),
+		love.graphics.printf(string.format('%q', TITLE),
 			windowWidth / 5.5, windowHeight / 3.5, 500, 'center')
-		suit.draw()
 	end,
 
 	keypressed = function(key, scancode, isrepeat)

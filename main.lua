@@ -39,22 +39,21 @@ function love.draw()
 	love.graphics.setColor(255, 255, 255)
 	if stack:peek() == MAIN_MENU then
 		main_menu.draw()
-		return
 	end
 
 	if stack:peek() == CREDITS then
 		credits_menu.draw()
-		return
 	end
 
 	if stack:peek() == GAME then
 		map.draw()
-		return
 	end
 
 	if show_debug then
 		debug.draw()
 	end
+	-- call it only once!
+	suit.draw()
 end
 
 function love.update(dt)
