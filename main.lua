@@ -4,6 +4,7 @@ credits_menu = require("src/menu/credits")
 main_menu = require("src/menu/mainmenu")
 debug = require("src/menu/debug")
 
+gamecontroller = require("src/game/logic/gamecontroller")
 map = require("src/game/view/map")
 
 VERSION = '0.0.1'
@@ -28,6 +29,7 @@ function love.load()
 	main_menu.load()
 	debug.load()
 
+	gamecontroller.load()
 	map.load()
 
 	-- Set title
@@ -82,7 +84,11 @@ function love.mousereleased(x, y, button, istouch, presses) end
 
 function love.keyreleased(key, scancode) end
 
-function love.mousemoved(x, y, dx, dy, istouch) end
+function love.mousemoved(x, y, dx, dy, istouch)
+	if stack:peek() == GAME then
+		map.mousemoved(x, y, dx, dy, istouch)
+	end
+end
 
 function love.textinput(text)
 	if stack:peek() == CREDITS then

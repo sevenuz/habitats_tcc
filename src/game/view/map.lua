@@ -4,11 +4,15 @@ local slider_water = { value = 1, min = 0, max = 100, step = 1 }
 local slider_nutrians = { value = 1, min = 0, max = 100, step = 1 }
 local slider_sun = { value = 1, min = 0, max = 100, step = 1 }
 
-TILE_WATER = 1
-TILE_GREEN = 2
-TILE_SAND = 3
+-- TODO random init value for lsp
+local map_canvas = love.graphics.newCanvas(1, 1)
+local map_offset = { dx = 0, dy = 0}
 
-function choose_tile(water, nutrians, sun)
+local TILE_WATER = 1
+local TILE_GREEN = 2
+local TILE_SAND = 3
+
+local function choose_tile(water, nutrians, sun)
 	if water > 33 and water > nutrians and water > sun then
 		return TILE_WATER
 	elseif nutrians > 33 and water > 19 and nutrians >= water then
@@ -18,7 +22,7 @@ function choose_tile(water, nutrians, sun)
 	end
 end
 
-function blub(water, nutrians, sun)
+local function blub(water, nutrians, sun)
 	local sand1 = false
 	local sand2 = false
 	local green1 = false
@@ -46,9 +50,41 @@ function blub(water, nutrians, sun)
 	return water1, water2, green1, green2, sand1, sand2
 end
 
+local function draw_tile(x, y, water, nutrians, sun)
+	local tile = choose_tile(water, nutrians, sun)
+	local bw1, bw2, bg1, bg2, bs1, bs2 = blub(water, nutrians, sun)
+	if tile == TILE_SAND then
+		love.graphics.draw(img_tile_sand, x, y)
+	elseif tile == TILE_GREEN then
+		love.graphics.draw(img_tile_green, x, y)
+	elseif tile == TILE_WATER then
+		love.graphics.draw(img_tile_water, x, y)
+	end
+
+	if bw1 and tile ~= TILE_WATER then
+		love.graphics.draw(img_blub_water1, x, y)
+	end
+	if bw2 and tile ~= TILE_WATER then
+		love.graphics.draw(img_blub_water2, x, y)
+	end
+	if bg1 then
+		love.graphics.draw(img_blub_green1, x, y)
+	end
+	if bg2 then
+		love.graphics.draw(img_blub_green2, x, y)
+	end
+	if bs1 then
+		love.graphics.draw(img_blub_sand1, x, y)
+	end
+	if bs2 then
+		love.graphics.draw(img_blub_sand2, x, y)
+	end
+	love.graphics.draw(tile_frame, x, y)
+end
+
 return {
 	load = function()
-		img_bg = love.graphics.newImage('sprites/tile_frame.png')
+		tile_frame = love.graphics.newImage('sprites/tile_frame.png')
 		img_card_back = love.graphics.newImage('sprites/card_back.png')
 		img_card_front = love.graphics.newImage('sprites/card_front.png')
 		img_tile_green = love.graphics.newImage('sprites/tile_base_green.png')
@@ -61,6 +97,10 @@ return {
 		img_blub_green2 = love.graphics.newImage('sprites/tile_blub_green2.png')
 		img_blub_sand1 = love.graphics.newImage('sprites/tile_blub_sand1.png')
 		img_blub_sand2 = love.graphics.newImage('sprites/tile_blub_sand2.png')
+
+		tile_width_px, tile_height_px = tile_frame:getDimensions()
+		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
+			gamecontroller.get_map().dimension.height * tile_height_px)
 	end,
 
 	update = function(dt)
@@ -80,35 +120,19 @@ return {
 	end,
 
 	draw = function()
-		local tile = choose_tile(slider_water.value, slider_nutrians.value, slider_sun.value)
-		local bw1, bw2, bg1, bg2, bs1, bs2 = blub(slider_water.value, slider_nutrians.value, slider_sun.value)
-		if tile == TILE_SAND then
-			love.graphics.draw(img_tile_sand, windowWidth / 4, 10)
-		elseif tile == TILE_GREEN then
-			love.graphics.draw(img_tile_green, windowWidth / 4, 10)
-		elseif tile == TILE_WATER then
-			love.graphics.draw(img_tile_water, windowWidth / 4, 10)
-		end
+		love.graphics.setCanvas(map_canvas)
+		love.graphics.clear()
+		gamecontroller.get_map().for_each(gamecontroller.get_map(),
+			function(line, column, water, nutrians, sun)
+				draw_tile((line - 1) * tile_height_px, (column - 1) * tile_width_px, water, nutrians, sun)
+			end
+		)
+		love.graphics.setCanvas()
 
-		if bw1 and tile ~= TILE_WATER then
-			love.graphics.draw(img_blub_water1, windowWidth / 4, 10)
-		end
-		if bw2 and tile ~= TILE_WATER then
-			love.graphics.draw(img_blub_water2, windowWidth / 4, 10)
-		end
-		if bg1 then
-			love.graphics.draw(img_blub_green1, windowWidth / 4, 10)
-		end
-		if bg2 then
-			love.graphics.draw(img_blub_green2, windowWidth / 4, 10)
-		end
-		if bs1 then
-			love.graphics.draw(img_blub_sand1, windowWidth / 4, 10)
-		end
-		if bs2 then
-			love.graphics.draw(img_blub_sand2, windowWidth / 4, 10)
-		end
-		love.graphics.draw(img_bg, windowWidth / 4, 10)
+		love.graphics.push()
+		love.graphics.translate(map_offset.dx, map_offset.dy)
+		love.graphics.draw(map_canvas)
+		love.graphics.pop()
 	end,
 
 	keypressed = function(key, scancode, isrepeat)
@@ -121,5 +145,21 @@ return {
 
 	wheelmoved = function(x, y)
 		suit.wheelmoved(x, y)
+	end,
+
+	mousemoved = function(x, y, dx, dy, istouch)
+		-- TODO shift viewport of map
+		if x < 100 then
+			map_offset.dx = map_offset.dx - 2
+		end
+		if x > windowWidth - 100 then
+			map_offset.dx = map_offset.dx + 2
+		end
+		if y < 100 then
+			map_offset.dy = map_offset.dy - 2
+		end
+		if y > windowHeight - 100 then
+			map_offset.dy = map_offset.dy + 2
+		end
 	end
 }
