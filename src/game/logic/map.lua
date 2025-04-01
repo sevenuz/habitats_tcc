@@ -14,20 +14,19 @@ map.map = {}
 
 ---init map with default values, map is 2d array, indexed first with heigth
 ---if no default values are passed, it is randomly initilized
----@param self map
 ---@param width number between 0 and 100
 ---@param heigth number
 ---@param water? number
 ---@param nutrians? number
 ---@param sun? number
-function map.init(self, width, heigth, water, nutrians, sun)
+function map.init(width, heigth, water, nutrians, sun)
 	assert(width > 0, "map width has to be greater 0")
 	assert(heigth > 0, "map heigth has to be greater 0")
-	self.dimension = { width = width, height = heigth }
+	map.dimension = { width = width, height = heigth }
 	for i = 1, heigth, 1 do
-		self.map[i] = {}
+		map.map[i] = {}
 		for j = 1, width, 1 do
-			self.map[i][j] = self.get_default_value(water, nutrians, sun)
+			map.map[i][j] = map.get_default_value(water, nutrians, sun)
 		end
 	end
 end
@@ -48,12 +47,11 @@ function map.get_default_value(water, nutrians, sun)
 end
 
 ---execute given fn for all tiles
----@param self map
 ---@param f function(line: number, column: number, water: number, nutrians: number, sun:number)
-function map.for_each(self, f)
-	for i = 1, self.dimension.height, 1 do
-		for j = 1, self.dimension.width, 1 do
-			f(i, j, self.map[i][j].water, self.map[i][j].nutrians, self.map[i][j].sun)
+function map.for_each(f)
+	for i = 1, map.dimension.height, 1 do
+		for j = 1, map.dimension.width, 1 do
+			f(i, j, map.map[i][j].water, map.map[i][j].nutrians, map.map[i][j].sun)
 		end
 	end
 end
