@@ -12,14 +12,14 @@ end
 
 return {
 	push = function(text, color)
-		_push(text, color)
+		if not text then
+			return
+		end
+		color = color or { 1, 1, 1 }
+		_push(tostring(text), color)
 	end,
 
-	load = function()
-		for j = 1, 30, 1 do
-			_push("test" .. j, { 1, 1, 1 })
-		end
-	end,
+	load = function() end,
 
 	update = function(dt)
 		love.graphics.setFont(love.graphics.newFont(14))
