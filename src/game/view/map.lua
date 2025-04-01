@@ -1,12 +1,6 @@
-suit = require 'lib/suit'
-
-local slider_water = { value = 1, min = 0, max = 100, step = 1 }
-local slider_nutrians = { value = 1, min = 0, max = 100, step = 1 }
-local slider_sun = { value = 1, min = 0, max = 100, step = 1 }
-
 -- TODO random init value for lsp
 local map_canvas = love.graphics.newCanvas(1, 1)
-local map_offset = { dx = 0, dy = 0 }
+local map_modifier = { dx = 0, dy = 0, scale = 1 }
 
 local TILE_WATER = 1
 local TILE_GREEN = 2
@@ -100,27 +94,19 @@ return {
 				sand2 = love.graphics.newImage('sprites/tile_blub_sand2.png'),
 			}
 		}
+		res.elements = {
+			water = love.graphics.newImage('sprites/water.png'),
+			nutrians = love.graphics.newImage('sprites/nutrians.png'),
+			sun = love.graphics.newImage('sprites/sun.png'),
+			sphere = love.graphics.newImage('sprites/sphere.png'),
+		}
 
 		tile_width_px, tile_height_px = res.tile.frame:getDimensions()
 		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
 			gamecontroller.get_map().dimension.height * tile_height_px)
 	end,
 
-	update = function(dt)
-		suit.layout:reset(0, 0)
-
-		-- put 10 extra pixels between cells in each direction
-		suit.layout:padding(10, 10)
-		love.graphics.setFont(love.graphics.newFont(14))
-		suit.Label("Water: " .. tostring(slider_water.value), suit.layout:row(100, 30))
-		suit.Slider(slider_water, suit.layout:row())
-
-		suit.Label("Nutrians: " .. tostring(slider_nutrians.value), suit.layout:row())
-		suit.Slider(slider_nutrians, suit.layout:row())
-
-		suit.Label("Sun: " .. tostring(slider_sun.value), suit.layout:row())
-		suit.Slider(slider_sun, suit.layout:row())
-	end,
+	update = function(dt) end,
 
 	draw = function()
 		love.graphics.setCanvas(map_canvas)
@@ -133,37 +119,44 @@ return {
 		love.graphics.setCanvas()
 
 		love.graphics.push()
-		love.graphics.translate(map_offset.dx, map_offset.dy)
-		love.graphics.draw(map_canvas)
+		love.graphics.translate(map_modifier.dx, map_modifier.dy)
+		love.graphics.scale(map_modifier.scale)
+
+		-- center map
+		local cw, ch = map_canvas:getDimensions()
+		love.graphics.draw(map_canvas, (windowWidth - cw) / 2, (windowHeight - ch) / 2)
+
 		love.graphics.pop()
+
+		love.graphics.draw(res.elements.nutrians)
+		love.graphics.draw(res.elements.sphere)
+		love.graphics.draw(res.elements.sun)
+		love.graphics.draw(res.elements.water)
+
 		love.graphics.draw(res.frame)
 	end,
 
-	keypressed = function(key, scancode, isrepeat)
-		suit.keypressed(key)
-	end,
+	keypressed = function(key, scancode, isrepeat) end,
 
-	textinput = function(text)
-		suit.textinput(text)
-	end,
+	textinput = function(text) end,
 
 	wheelmoved = function(x, y)
-		suit.wheelmoved(x, y)
+		-- TODO magic numbers into settings
+		if y < 0 and map_modifier.scale > 1 then
+			map_modifier.scale = map_modifier.scale + (y * 0.2)
+		end
+		if y > 0 and map_modifier.scale < 3 then
+			map_modifier.scale = map_modifier.scale + (y * 0.2)
+		end
 	end,
 
 	mousemoved = function(x, y, dx, dy, istouch)
 		-- TODO shift viewport of map
-		if x < 100 then
-			map_offset.dx = map_offset.dx - 2
-		end
-		if x > windowWidth - 100 then
-			map_offset.dx = map_offset.dx + 2
-		end
-		if y < 100 then
-			map_offset.dy = map_offset.dy - 2
-		end
-		if y > windowHeight - 100 then
-			map_offset.dy = map_offset.dy + 2
-		end
+		-- TODO magic numbers into settings
+		local cw, ch = map_canvas:getDimensions()
+		local ppx = (x / windowWidth) - 0.5
+		local ppy = (y / windowHeight) - 0.5
+		map_modifier.dx = cw * ppx
+		map_modifier.dy = ch * ppy
 	end
 }

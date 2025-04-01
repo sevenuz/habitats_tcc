@@ -6,7 +6,7 @@ return {
 	end,
 
 	---get current map table
-	---@return table
+	---@return map
 	get_map = function()
 		return map
 	end
