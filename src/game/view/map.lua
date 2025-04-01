@@ -100,6 +100,11 @@ return {
 			sun = love.graphics.newImage('sprites/sun.png'),
 			sphere = love.graphics.newImage('sprites/sphere.png'),
 		}
+		res.card = {
+			front = love.graphics.newImage('sprites/card_front.png'),
+			back = love.graphics.newImage('sprites/card_back.png'),
+			bar = love.graphics.newImage('sprites/card_bar.png'),
+		}
 
 		tile_width_px, tile_height_px = res.tile.frame:getDimensions()
 		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
@@ -129,10 +134,23 @@ return {
 
 		love.graphics.pop()
 
+		cw, ch = res.card.front:getDimensions()
+		love.graphics.draw(res.card.front, (windowWidth - cw) / 2, (windowHeight - ch) / 2)
+
 		love.graphics.draw(res.elements.nutrians)
 		love.graphics.draw(res.elements.sphere)
 		love.graphics.draw(res.elements.sun)
 		love.graphics.draw(res.elements.water)
+
+		local e = gamecontroller.get_map().get_element_average()
+		love.graphics.setFont(love.graphics.newFont(28))
+		love.graphics.setColor(1,0,0)
+		love.graphics.printf(math.floor(e.sun+.5) .. "%", 1688, 350, 500, 'left')
+		love.graphics.setColor(0,0,1)
+		love.graphics.printf(tostring(math.floor(e.water+.5)) .. "%", 1679, 493, 500, 'left')
+		love.graphics.setColor(0,1,0)
+		love.graphics.printf(math.floor(e.nutrians+.5) .. "%", 1682, 626, 500, 'left')
+		love.graphics.setColor(1,1,1)
 
 		love.graphics.draw(res.frame)
 	end,

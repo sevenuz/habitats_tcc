@@ -19,7 +19,9 @@ return {
 		_push(tostring(text), color)
 	end,
 
-	load = function() end,
+	load = function()
+		_push("Try m for mouseposition, eval or exit...", { 1, 1, 1 })
+	end,
 
 	update = function(dt)
 		love.graphics.setFont(love.graphics.newFont(14))
@@ -32,6 +34,7 @@ return {
 					show_debug = false
 				end
 			end
+
 			if eval_mode then
 				_push(">> " .. input.text, { 0, 1, 0 })
 				local res, msg = loadstring(input.text)
@@ -46,9 +49,16 @@ return {
 			else
 				_push(input.text, { 1, 1, 1 })
 			end
+
+			if input.text == "m" then
+				_push(">> local x,y = love.mouse.getPosition(); return x .. ' ' .. y", { 0, 1, 0 })
+				local x, y = love.mouse.getPosition()
+				_push(">> x: " .. x .. " y: " .. y, { 0, 1, 0 })
+			end
+
 			if input.text == "eval" then
 				eval_mode = true
-					_push("!!! WARNING, eval is evil !!!", { 1, 1, 0.5 })
+				_push("!!! WARNING, eval is evil !!!", { 1, 1, 0.5 })
 			end
 			input.text = ""
 		end

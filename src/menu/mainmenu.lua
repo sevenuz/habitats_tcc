@@ -54,6 +54,8 @@ return {
 	keypressed = function(key, scancode, isrepeat)
 		if key == "return" then
 			stack:push(GAME)
+			-- set map_modifier, so map does not jump on mousemove
+			map.mousemoved(love.mouse.getPosition())
 		end
 		if key == "c" then
 			stack:push(CREDITS)

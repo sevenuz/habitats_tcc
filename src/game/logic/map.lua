@@ -56,4 +56,19 @@ function map.for_each(f)
 	end
 end
 
+---average of elements over all tiles
+---@return element
+function map.get_element_average()
+	local n = map.dimension.width * map.dimension.height
+	local aw = 0
+	local an = 0
+	local as = 0
+	map.for_each(function(_, _, water, nutrians, sun)
+		aw = aw + water
+		an = an + nutrians
+		as = as + sun
+	end)
+	return { water = aw / n, nutrians = an / n, sun = as / n }
+end
+
 return map
