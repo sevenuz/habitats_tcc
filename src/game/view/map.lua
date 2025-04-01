@@ -119,8 +119,9 @@ return {
 		love.graphics.setCanvas()
 
 		love.graphics.push()
-		love.graphics.scale(map_modifier.scale)
-		love.graphics.translate(map_modifier.dx * map_modifier.scale, map_modifier.dy * map_modifier.scale)
+		-- does not work with move, aahahhahahhahahha
+		--love.graphics.scale(map_modifier.scale)
+		love.graphics.translate(map_modifier.dx, map_modifier.dy)
 
 		-- center map
 		local cw, ch = map_canvas:getDimensions()
