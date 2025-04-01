@@ -7,6 +7,9 @@ debug = require("src/menu/debug")
 gamecontroller = require("src/game/logic/gamecontroller")
 map = require("src/game/view/map")
 
+--- resource map for all images
+res = {}
+
 VERSION = '0.0.1'
 
 TITLE = 'Habitats TTC'

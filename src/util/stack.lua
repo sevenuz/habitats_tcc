@@ -14,7 +14,8 @@ function Stack:push(element)
   table.insert(self.data, element)
 end
 
--- Pop element from the stack (removes and returns the top element)
+--- Pop element from the stack (removes and returns the top element)
+--- @return any
 function Stack:pop()
   if #self.data == 0 then
     return nil -- Handle empty stack case

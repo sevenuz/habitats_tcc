@@ -6,7 +6,7 @@ local slider_sun = { value = 1, min = 0, max = 100, step = 1 }
 
 -- TODO random init value for lsp
 local map_canvas = love.graphics.newCanvas(1, 1)
-local map_offset = { dx = 0, dy = 0}
+local map_offset = { dx = 0, dy = 0 }
 
 local TILE_WATER = 1
 local TILE_GREEN = 2
@@ -54,51 +54,54 @@ local function draw_tile(x, y, water, nutrians, sun)
 	local tile = choose_tile(water, nutrians, sun)
 	local bw1, bw2, bg1, bg2, bs1, bs2 = blub(water, nutrians, sun)
 	if tile == TILE_SAND then
-		love.graphics.draw(img_tile_sand, x, y)
+		love.graphics.draw(res.tile.base.sand, x, y)
 	elseif tile == TILE_GREEN then
-		love.graphics.draw(img_tile_green, x, y)
+		love.graphics.draw(res.tile.base.green, x, y)
 	elseif tile == TILE_WATER then
-		love.graphics.draw(img_tile_water, x, y)
+		love.graphics.draw(res.tile.base.water, x, y)
 	end
 
 	if bw1 and tile ~= TILE_WATER then
-		love.graphics.draw(img_blub_water1, x, y)
+		love.graphics.draw(res.tile.blub.water1, x, y)
 	end
 	if bw2 and tile ~= TILE_WATER then
-		love.graphics.draw(img_blub_water2, x, y)
+		love.graphics.draw(res.tile.blub.water2, x, y)
 	end
 	if bg1 then
-		love.graphics.draw(img_blub_green1, x, y)
+		love.graphics.draw(res.tile.blub.green1, x, y)
 	end
 	if bg2 then
-		love.graphics.draw(img_blub_green2, x, y)
+		love.graphics.draw(res.tile.blub.green2, x, y)
 	end
 	if bs1 then
-		love.graphics.draw(img_blub_sand1, x, y)
+		love.graphics.draw(res.tile.blub.sand1, x, y)
 	end
 	if bs2 then
-		love.graphics.draw(img_blub_sand2, x, y)
+		love.graphics.draw(res.tile.blub.sand2, x, y)
 	end
-	love.graphics.draw(tile_frame, x, y)
+	love.graphics.draw(res.tile.frame, x, y)
 end
 
 return {
 	load = function()
-		tile_frame = love.graphics.newImage('sprites/tile_frame.png')
-		img_card_back = love.graphics.newImage('sprites/card_back.png')
-		img_card_front = love.graphics.newImage('sprites/card_front.png')
-		img_tile_green = love.graphics.newImage('sprites/tile_base_green.png')
-		img_tile_water = love.graphics.newImage('sprites/tile_base_water.png')
-		img_tile_sand = love.graphics.newImage('sprites/tile_base_sand.png')
+		res.tile = {
+			frame = love.graphics.newImage('sprites/tile_frame.png'),
+			base = {
+				green = love.graphics.newImage('sprites/tile_base_green.png'),
+				water = love.graphics.newImage('sprites/tile_base_water.png'),
+				sand = love.graphics.newImage('sprites/tile_base_sand.png'),
+			},
+			blub = {
+				water1 = love.graphics.newImage('sprites/tile_blub_water1.png'),
+				water2 = love.graphics.newImage('sprites/tile_blub_water2.png'),
+				green1 = love.graphics.newImage('sprites/tile_blub_green1.png'),
+				green2 = love.graphics.newImage('sprites/tile_blub_green2.png'),
+				sand1 = love.graphics.newImage('sprites/tile_blub_sand1.png'),
+				sand2 = love.graphics.newImage('sprites/tile_blub_sand2.png'),
+			}
+		}
 
-		img_blub_water1 = love.graphics.newImage('sprites/tile_blub_water1.png')
-		img_blub_water2 = love.graphics.newImage('sprites/tile_blub_water2.png')
-		img_blub_green1 = love.graphics.newImage('sprites/tile_blub_green1.png')
-		img_blub_green2 = love.graphics.newImage('sprites/tile_blub_green2.png')
-		img_blub_sand1 = love.graphics.newImage('sprites/tile_blub_sand1.png')
-		img_blub_sand2 = love.graphics.newImage('sprites/tile_blub_sand2.png')
-
-		tile_width_px, tile_height_px = tile_frame:getDimensions()
+		tile_width_px, tile_height_px = res.tile.frame:getDimensions()
 		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
 			gamecontroller.get_map().dimension.height * tile_height_px)
 	end,
@@ -133,6 +136,7 @@ return {
 		love.graphics.translate(map_offset.dx, map_offset.dy)
 		love.graphics.draw(map_canvas)
 		love.graphics.pop()
+		love.graphics.draw(res.frame)
 	end,
 
 	keypressed = function(key, scancode, isrepeat)
