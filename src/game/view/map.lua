@@ -156,7 +156,7 @@ return {
 		local cw, ch = map_canvas:getDimensions()
 		local ppx = (x / windowWidth) - 0.5
 		local ppy = (y / windowHeight) - 0.5
-		map_modifier.dx = cw * ppx
-		map_modifier.dy = ch * ppy
+		map_modifier.dx = cw * -ppx
+		map_modifier.dy = ch * -ppy
 	end
 }
