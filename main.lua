@@ -40,6 +40,7 @@ function love.load()
 end
 
 function love.draw()
+	love.graphics.setBackgroundColor(9/255,34/255,5/255)
 	-- reset color for new frame
 	love.graphics.setColor(255, 255, 255)
 	if stack:peek() == MAIN_MENU then
