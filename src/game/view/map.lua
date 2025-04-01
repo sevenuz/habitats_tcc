@@ -113,7 +113,7 @@ return {
 		love.graphics.clear()
 		gamecontroller.get_map().for_each(
 			function(line, column, water, nutrians, sun)
-				draw_tile((line - 1) * tile_height_px, (column - 1) * tile_width_px, water, nutrians, sun)
+				draw_tile((column - 1) * tile_width_px, (line - 1) * tile_height_px, water, nutrians, sun)
 			end
 		)
 		love.graphics.setCanvas()
