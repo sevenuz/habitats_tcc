@@ -119,8 +119,8 @@ return {
 		love.graphics.setCanvas()
 
 		love.graphics.push()
-		love.graphics.translate(map_modifier.dx, map_modifier.dy)
 		love.graphics.scale(map_modifier.scale)
+		love.graphics.translate(map_modifier.dx * map_modifier.scale, map_modifier.dy * map_modifier.scale)
 
 		-- center map
 		local cw, ch = map_canvas:getDimensions()
@@ -142,11 +142,11 @@ return {
 
 	wheelmoved = function(x, y)
 		-- TODO magic numbers into settings
-		if y < 0 and map_modifier.scale > 1 then
-			map_modifier.scale = map_modifier.scale + (y * 0.2)
+		if y < 0 and map_modifier.scale > 0.5 then
+			map_modifier.scale = map_modifier.scale - 0.2
 		end
-		if y > 0 and map_modifier.scale < 3 then
-			map_modifier.scale = map_modifier.scale + (y * 0.2)
+		if y > 0 and map_modifier.scale < 2.0 then
+			map_modifier.scale = map_modifier.scale + 0.2
 		end
 	end,
 
