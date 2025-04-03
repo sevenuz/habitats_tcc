@@ -6,6 +6,9 @@ local TILE_WATER = 1
 local TILE_GREEN = 2
 local TILE_SAND = 3
 
+-- text width for font size 10 for text "100%"
+local text_width_10
+
 local function choose_tile(water, nutrians, sun)
 	if water > 33 and water > nutrians and water > sun then
 		return TILE_WATER
@@ -74,6 +77,15 @@ local function draw_tile(x, y, water, nutrians, sun)
 		love.graphics.draw(res.tile.blub.sand2, x, y)
 	end
 	love.graphics.draw(res.tile.frame, x, y)
+	-- draw elements per field
+	tile_width_px, tile_height_px = res.tile.frame:getDimensions()
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.printf(math.floor(sun + .5) .. "%", x, y, 500, 'left')
+	love.graphics.setColor(0, 0, 1)
+	love.graphics.printf(tostring(math.floor(water + .5)) .. "%", x + text_width_10, y, 500, 'left')
+	love.graphics.setColor(0, 1, 0)
+	love.graphics.printf(math.floor(nutrians + .5) .. "%", x + text_width_10 * 2, y, 500, 'left')
+	love.graphics.setColor(1, 1, 1)
 end
 
 return {
@@ -106,6 +118,9 @@ return {
 			bar = love.graphics.newImage('sprites/card_bar.png'),
 		}
 
+		love.graphics.setFont(love.graphics.newFont(10))
+		text_width_10 = love.graphics.getFont():getWidth("100%")
+
 		tile_width_px, tile_height_px = res.tile.frame:getDimensions()
 		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
 			gamecontroller.get_map().dimension.height * tile_height_px)
@@ -116,6 +131,7 @@ return {
 	draw = function()
 		love.graphics.setCanvas(map_canvas)
 		love.graphics.clear()
+		love.graphics.setFont(love.graphics.newFont(10))
 		gamecontroller.get_map().for_each(
 			function(line, column, water, nutrians, sun)
 				draw_tile((column - 1) * tile_width_px, (line - 1) * tile_height_px, water, nutrians, sun)
@@ -144,13 +160,13 @@ return {
 
 		local e = gamecontroller.get_map().get_element_average()
 		love.graphics.setFont(love.graphics.newFont(28))
-		love.graphics.setColor(1,0,0)
-		love.graphics.printf(math.floor(e.sun+.5) .. "%", 1688, 350, 500, 'left')
-		love.graphics.setColor(0,0,1)
-		love.graphics.printf(tostring(math.floor(e.water+.5)) .. "%", 1679, 493, 500, 'left')
-		love.graphics.setColor(0,1,0)
-		love.graphics.printf(math.floor(e.nutrians+.5) .. "%", 1682, 626, 500, 'left')
-		love.graphics.setColor(1,1,1)
+		love.graphics.setColor(1, 0, 0)
+		love.graphics.printf(math.floor(e.sun + .5) .. "%", 1688, 350, 500, 'left')
+		love.graphics.setColor(0, 0, 1)
+		love.graphics.printf(tostring(math.floor(e.water + .5)) .. "%", 1679, 493, 500, 'left')
+		love.graphics.setColor(0, 1, 0)
+		love.graphics.printf(math.floor(e.nutrians + .5) .. "%", 1682, 626, 500, 'left')
+		love.graphics.setColor(1, 1, 1)
 
 		love.graphics.draw(res.frame)
 	end,
