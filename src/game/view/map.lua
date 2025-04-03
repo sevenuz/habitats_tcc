@@ -1,5 +1,5 @@
--- TODO random init value for lsp
-local map_canvas = love.graphics.newCanvas(1, 1)
+local canvas_map_width, canvas_map_height
+local canvas_map
 local map_modifier = { dx = 0, dy = 0, scale = 1 }
 
 local TILE_WATER = 1
@@ -47,9 +47,9 @@ local function blub(water, nutrians, sun)
 	return water1, water2, green1, green2, sand1, sand2
 end
 
-local function draw_tile(x, y, water, nutrians, sun)
-	local tile = choose_tile(water, nutrians, sun)
-	local bw1, bw2, bg1, bg2, bs1, bs2 = blub(water, nutrians, sun)
+local function draw_tile(x, y, element)
+	local tile = choose_tile(element.water, element.nutrians, element.sun)
+	local bw1, bw2, bg1, bg2, bs1, bs2 = blub(element.water, element.nutrians, element.sun)
 	if tile == TILE_SAND then
 		love.graphics.draw(res.tile.base.sand, x, y)
 	elseif tile == TILE_GREEN then
@@ -80,11 +80,11 @@ local function draw_tile(x, y, water, nutrians, sun)
 	-- draw elements per field
 	tile_width_px, tile_height_px = res.tile.frame:getDimensions()
 	love.graphics.setColor(1, 0, 0)
-	love.graphics.printf(math.floor(sun + .5) .. "%", x, y, 500, 'left')
+	love.graphics.printf(math.floor(element.sun + .5) .. "%", x, y, 500, 'left')
 	love.graphics.setColor(0, 0, 1)
-	love.graphics.printf(tostring(math.floor(water + .5)) .. "%", x + text_width_10, y, 500, 'left')
+	love.graphics.printf(tostring(math.floor(element.water + .5)) .. "%", x + text_width_10, y, 500, 'left')
 	love.graphics.setColor(0, 1, 0)
-	love.graphics.printf(math.floor(nutrians + .5) .. "%", x + text_width_10 * 2, y, 500, 'left')
+	love.graphics.printf(math.floor(element.nutrians + .5) .. "%", x + text_width_10 * 2, y, 500, 'left')
 	love.graphics.setColor(1, 1, 1)
 end
 
@@ -112,32 +112,31 @@ return {
 			sun = love.graphics.newImage('sprites/sun.png'),
 			sphere = love.graphics.newImage('sprites/sphere.png'),
 		}
-		res.card = {
-			front = love.graphics.newImage('sprites/card_front.png'),
-			back = love.graphics.newImage('sprites/card_back.png'),
-			bar = love.graphics.newImage('sprites/card_bar.png'),
-		}
 
 		love.graphics.setFont(love.graphics.newFont(10))
 		text_width_10 = love.graphics.getFont():getWidth("100%")
 
 		tile_width_px, tile_height_px = res.tile.frame:getDimensions()
-		map_canvas = love.graphics.newCanvas(gamecontroller.get_map().dimension.width * tile_width_px,
-			gamecontroller.get_map().dimension.height * tile_height_px)
+		canvas_map_width = gamecontroller.get_map().dimension.width * tile_width_px
+		canvas_map_height = gamecontroller.get_map().dimension.height * tile_height_px
+		canvas_map = love.graphics.newCanvas(canvas_map_width, canvas_map_height)
 	end,
 
 	update = function(dt) end,
 
 	draw = function()
-		love.graphics.setCanvas(map_canvas)
-		love.graphics.clear()
-		love.graphics.setFont(love.graphics.newFont(10))
-		gamecontroller.get_map().for_each(
-			function(line, column, water, nutrians, sun)
-				draw_tile((column - 1) * tile_width_px, (line - 1) * tile_height_px, water, nutrians, sun)
-			end
-		)
-		love.graphics.setCanvas()
+		if gamecontroller.get_map().needs_redraw() then
+			debug.push("redraw map")
+			love.graphics.setCanvas(canvas_map)
+			love.graphics.clear()
+			love.graphics.setFont(love.graphics.newFont(10))
+			gamecontroller.get_map().for_each(
+				function(line, column, element)
+					draw_tile((column - 1) * tile_width_px, (line - 1) * tile_height_px, element)
+				end
+			)
+			love.graphics.setCanvas()
+		end
 
 		love.graphics.push()
 		-- does not work with move, aahahhahahhahahha
@@ -145,13 +144,9 @@ return {
 		love.graphics.translate(map_modifier.dx, map_modifier.dy)
 
 		-- center map
-		local cw, ch = map_canvas:getDimensions()
-		love.graphics.draw(map_canvas, (windowWidth - cw) / 2, (windowHeight - ch) / 2)
+		love.graphics.draw(canvas_map, (windowWidth - canvas_map_width) / 2, (windowHeight - canvas_map_height) / 2)
 
 		love.graphics.pop()
-
-		cw, ch = res.card.front:getDimensions()
-		love.graphics.draw(res.card.front, (windowWidth - cw) / 2, (windowHeight - ch) / 2)
 
 		love.graphics.draw(res.elements.nutrians)
 		love.graphics.draw(res.elements.sphere)
@@ -167,8 +162,6 @@ return {
 		love.graphics.setColor(0, 1, 0)
 		love.graphics.printf(math.floor(e.nutrians + .5) .. "%", 1682, 626, 500, 'left')
 		love.graphics.setColor(1, 1, 1)
-
-		love.graphics.draw(res.frame)
 	end,
 
 	keypressed = function(key, scancode, isrepeat) end,
@@ -188,7 +181,7 @@ return {
 	mousemoved = function(x, y, dx, dy, istouch)
 		-- TODO shift viewport of map
 		-- TODO magic numbers into settings
-		local cw, ch = map_canvas:getDimensions()
+		local cw, ch = canvas_map:getDimensions()
 		local ppx = (x / windowWidth) - 0.5
 		local ppy = (y / windowHeight) - 0.5
 		map_modifier.dx = cw * -ppx

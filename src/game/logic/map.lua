@@ -1,7 +1,33 @@
 ---@alias element { water: number, nutrians: number, sun: number }
 
+---@param water? number
+---@param nutrians? number
+---@param sun? number
+---@return element
+local function get_default_value(water, nutrians, sun)
+	water = water or math.random(100)
+	nutrians = nutrians or math.random(100)
+	sun = sun or math.random(100)
+	assert(water >= 0 and water <= 100, "water not in percent")
+	assert(nutrians >= 0 and nutrians <= 100, "nutrians not in percent")
+	assert(sun >= 0 and sun <= 100, "sun not in percent")
+	return { water = water, nutrians = nutrians, sun = sun }
+end
+
 ---@class map
 local map = {}
+
+---is only for the view and is reset after calling needs_redraw()
+---@type boolean
+map.redraw = true
+
+---check if it needs a redraw, resets draw state
+---@return boolean
+function map.needs_redraw()
+	local r = map.redraw
+	map.redraw = false
+	return r
+end
 
 ---set in init
 ---width = columns, height = lines
@@ -26,32 +52,17 @@ function map.init(width, heigth, water, nutrians, sun)
 	for i = 1, heigth, 1 do
 		map.map[i] = {}
 		for j = 1, width, 1 do
-			map.map[i][j] = map.get_default_value(water, nutrians, sun)
+			map.map[i][j] = get_default_value(water, nutrians, sun)
 		end
 	end
 end
 
----Returns a named tuple with 3 entries
----@param water? number
----@param nutrians? number
----@param sun? number
----@return element
-function map.get_default_value(water, nutrians, sun)
-	water = water or math.random(100)
-	nutrians = nutrians or math.random(100)
-	sun = sun or math.random(100)
-	assert(water >= 0 and water <= 100, "water not in percent")
-	assert(nutrians >= 0 and nutrians <= 100, "nutrians not in percent")
-	assert(sun >= 0 and sun <= 100, "sun not in percent")
-	return { water = water, nutrians = nutrians, sun = sun }
-end
-
 ---execute given fn for all tiles
----@param f function(line: number, column: number, water: number, nutrians: number, sun:number)
+---@param f function(line: number, column: number, element: element)
 function map.for_each(f)
 	for i = 1, map.dimension.height, 1 do
 		for j = 1, map.dimension.width, 1 do
-			f(i, j, map.map[i][j].water, map.map[i][j].nutrians, map.map[i][j].sun)
+			f(i, j, get_default_value(map.map[i][j].water, map.map[i][j].nutrians, map.map[i][j].sun))
 		end
 	end
 end
@@ -63,12 +74,32 @@ function map.get_element_average()
 	local aw = 0
 	local an = 0
 	local as = 0
-	map.for_each(function(_, _, water, nutrians, sun)
-		aw = aw + water
-		an = an + nutrians
-		as = as + sun
+	map.for_each(function(_, _, element)
+		aw = aw + element.water
+		an = an + element.nutrians
+		as = as + element.sun
 	end)
 	return { water = aw / n, nutrians = an / n, sun = as / n }
+end
+
+---sets the tile at the given index to the given element
+---@param line number
+---@param column number
+---@param element element
+function map.set_tile_to(line, column, element)
+	map.map[line][column] = element
+	map.redraw = true
+end
+
+---changes the tile at the given index by the given element relativly
+---@param line number
+---@param column number
+---@param element element
+function map.change_tile_by(line, column, element)
+	map.map[line][column].water = map.map[line][column].water + element.water
+	map.map[line][column].nutrians = map.map[line][column].nutrians + element.nutrians
+	map.map[line][column].sun = map.map[line][column].sun + element.sun
+	map.redraw = true
 end
 
 return map

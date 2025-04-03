@@ -1,3 +1,4 @@
+util = require("src/util")
 Stack = require("src/util/stack")
 
 credits_menu = require("src/menu/credits")
@@ -5,7 +6,7 @@ main_menu = require("src/menu/mainmenu")
 debug = require("src/menu/debug")
 
 gamecontroller = require("src/game/logic/gamecontroller")
-map = require("src/game/view/map")
+view = require("src/game/view")
 
 --- resource map for all images
 res = {}
@@ -33,7 +34,7 @@ function love.load()
 	debug.load()
 
 	gamecontroller.load()
-	map.load()
+	view.load()
 
 	-- Set title
 	love.window.setTitle(TITLE)
@@ -52,7 +53,7 @@ function love.draw()
 	end
 
 	if stack:peek() == GAME then
-		map.draw()
+		view.draw()
 	end
 
 	if show_debug then
@@ -70,7 +71,7 @@ function love.update(dt)
 		main_menu.update(dt)
 	end
 	if stack:peek() == GAME then
-		map.update(dt)
+		view.update(dt)
 	end
 
 	if show_debug then
@@ -90,7 +91,7 @@ function love.keyreleased(key, scancode) end
 
 function love.mousemoved(x, y, dx, dy, istouch)
 	if stack:peek() == GAME then
-		map.mousemoved(x, y, dx, dy, istouch)
+		view.mousemoved(x, y, dx, dy, istouch)
 	end
 end
 
@@ -102,7 +103,7 @@ function love.textinput(text)
 		main_menu.textinput(text)
 	end
 	if stack:peek() == GAME then
-		map.textinput(text)
+		view.textinput(text)
 	end
 
 	if show_debug then
@@ -118,7 +119,7 @@ function love.wheelmoved(x, y)
 		main_menu.wheelmoved(x, y)
 	end
 	if stack:peek() == GAME then
-		map.wheelmoved(x, y)
+		view.wheelmoved(x, y)
 	end
 
 	if show_debug then
@@ -145,7 +146,7 @@ function love.keypressed(key, scancode, isrepeat)
 		main_menu.keypressed(key, scancode)
 	end
 	if stack:peek() == GAME then
-		map.keypressed(key, scancode)
+		view.keypressed(key, scancode)
 	end
 
 	if show_debug then
